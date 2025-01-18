@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的世界瞄准计算器</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 5px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 0.9rem;
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .tab.active {
+            background-color: #d1e3f7;
+            color: #0056b3;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-sizing: border-box;
+            display: none;
+        }
+
+        .card.active {
+            display: block;
+        }
+
+        h2 {
+            color: #34495e;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .input-group input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        p {
+            color: #555;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .mode-tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 5px;
+        }
+
+        .mode-tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 0.8rem;
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-radius: 6px;
+        }
+
+        .mode-tab.active {
+            background-color: #d1e3f7;
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" data-tab="tab1">五格矿矢</button>
+            <button class="tab" data-tab="tab2">十格矿矢</button>
+            <button class="tab" data-tab="tab3">凋灵炮</button>
+        </div>
+
+        <div class="card active" id="tab1">
+            <h2>平面直角矿矢瞄准算法 (五格下落)</h2>
+            <div class="mode-tabs">
+                <button class="mode-tab active" data-mode="ten_unit">十位与个位</button>
+                <button class="mode-tab" data-mode="box_unit">盒与个位</button>
+            </div>
+            <div class="input-group">
+                <label for="num1_1">角度</label>
+                <input type="text" id="num1_1" placeholder="请输入角度">
+            </div>
+            <div class="input-group">
+                <label for="num2_1">距离</label>
+                <input type="text" id="num2_1" placeholder="请输入距离">
+            </div>
+            <button onclick="calculate(1)">计算</button>
+            <p>*左偏角输入负数，右偏角输入正数</p>
+            <p id="result1_1_ten">右十位输入次数：</p>
+            <p id="result2_1_ten">右个位输入次数：</p>
+            <p id="result3_1_ten">左十位输入次数：</p>
+            <p id="result4_1_ten">左个位输入次数：</p>
+            <p id="result1_1_box" style="display: none;">右盒数：</p>
+            <p id="result2_1_box" style="display: none;">右零散个数：</p>
+            <p id="result3_1_box" style="display: none;">左盒数：</p>
+            <p id="result4_1_box" style="display: none;">左零散个数：</p>
+        </div>
+
+        <div class="card" id="tab2">
+            <h2>平面直角矿矢瞄准算法 (十格下落)</h2>
+            <div class="mode-tabs">
+                <button class="mode-tab active" data-mode="ten_unit">十位与个位</button>
+                <button class="mode-tab" data-mode="box_unit">盒与个位</button>
+            </div>
+            <div class="input-group">
+                <label for="num1_2">角度</label>
+                <input type="text" id="num1_2" placeholder="请输入角度">
+            </div>
+            <div class="input-group">
+                <label for="num2_2">距离</label>
+                <input type="text" id="num2_2" placeholder="请输入距离">
+            </div>
+            <button onclick="calculate(2)">计算</button>
+            <p>*左偏角输入负数，右偏角输入正数</p>
+            <p id="result1_2_ten">右十位输入次数：</p>
+            <p id="result2_2_ten">右个位输入次数：</p>
+            <p id="result3_2_ten">左十位输入次数：</p>
+            <p id="result4_2_ten">左个位输入次数：</p>
+            <p id="result1_2_box" style="display: none;">右盒数：</p>
+            <p id="result2_2_box" style="display: none;">右零散个数：</p>
+            <p id="result3_2_box" style="display: none;">左盒数：</p>
+            <p id="result4_2_box" style="display: none;">左零散个数：</p>
+        </div>
+
+        <div class="card" id="tab3">
+            <h2>凋灵炮瞄准计算</h2>
+             <div class="mode-tabs">
+                <button class="mode-tab active" data-mode="ten_unit">十位与个位</button>
+                <button class="mode-tab" data-mode="box_unit">盒与个位</button>
+            </div>
+            <div class="input-group">
+                <label for="num1_3">角度</label>
+                <input type="text" id="num1_3" placeholder="请输入角度">
+            </div>
+            <div class="input-group">
+                <label for="num2_3">距离</label>
+                <input type="text" id="num2_3" placeholder="请输入距离">
+            </div>
+            <button onclick="calculate(3)">计算</button>
+            <p id="result1_3_ten" style="display: none;">右十位输入次数：</p>
+            <p id="result2_3_ten" style="display: none;">右个位输入次数：</p>
+            <p id="result3_3_ten" style="display: none;">左十位输入次数：</p>
+            <p id="result4_3_ten" style="display: none;">左个位输入次数：</p>
+            <p id="result1_3_box">右TNT盒数：</p>
+            <p id="result2_3_box">右TNT零散个数：</p>
+            <p id="result3_3_box">左TNT盒数：</p>
+            <p id="result4_3_box">左TNT零散个数：</p>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const cards = document.querySelectorAll('.card');
+        const modeTabs = document.querySelectorAll('.mode-tabs');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+
+                tabs.forEach(t => t.classList.remove('active'));
+                cards.forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        modeTabs.forEach(modeTabContainer => {
+            const modeTabs = modeTabContainer.querySelectorAll('.mode-tab');
+            modeTabs.forEach(modeTab => {
+                modeTab.addEventListener('click', () => {
+                    const card = modeTab.closest('.card');
+                    const mode = modeTab.getAttribute('data-mode');
+                    const modeTabs = card.querySelectorAll('.mode-tab');
+                    modeTabs.forEach(t => t.classList.remove('active'));
+                    modeTab.classList.add('active');
+                    calculate(parseInt(card.id.slice(3)), mode);
+                });
+            });
+        });
+
+        function calculate(tabIndex, mode) {
+            let num1, num2, result1, result2, result3, result4, a, b;
+            const num1Id = `num1_${tabIndex}`;
+            const num2Id = `num2_${tabIndex}`;
+            const result1TenId = `result1_${tabIndex}_ten`;
+            const result2TenId = `result2_${tabIndex}_ten`;
+            const result3TenId = `result3_${tabIndex}_ten`;
+            const result4TenId = `result4_${tabIndex}_ten`;
+            const result1BoxId = `result1_${tabIndex}_box`;
+            const result2BoxId = `result2_${tabIndex}_box`;
+            const result3BoxId = `result3_${tabIndex}_box`;
+            const result4BoxId = `result4_${tabIndex}_box`;
+            
+            num1 = parseFloat(document.getElementById(num1Id).value);
+            num2 = parseFloat(document.getElementById(num2Id).value);
+            const outputMode = mode || document.querySelector(`#tab${tabIndex} .mode-tab.active`).getAttribute('data-mode');
+
+
+            if (!isNaN(num1) && !isNaN(num2)) {
+                if (tabIndex === 1) {
+                    a = 0.297566956521739 * ((0.5 * Math.sin((Math.PI / 180) * num1 * (-1)) + 0.5 * Math.cos((Math.PI / 180) * num1 * (-1))) * (1.414213562 / 1.8148) * num2);
+                    b = 0.297566956521739 * ((0.5 * Math.cos((Math.PI / 180) * num1 * (-1)) - 0.5 * Math.sin((Math.PI / 180) * num1 * (-1))) * (1.414213562 / 1.8148) * num2);
+                } else if (tabIndex === 2) {
+                    a = 0.2271261 * ((0.5 * Math.sin((Math.PI / 180) * num1 * (-1)) + 0.5 * Math.cos((Math.PI / 180) * num1 * (-1))) * (1.414213562 / 1.8148) * num2);
+                    b = 0.2271261 * ((0.5 * Math.cos((Math.PI / 180) * num1 * (-1)) - 0.5 * Math.sin((Math.PI / 180) * num1 * (-1))) * (1.414213562 / 1.8148) * num2);
+                } else if (tabIndex === 3) {
+                    a = (0.5 * Math.sin((Math.PI / 180) * num1) + 0.5 * Math.cos((Math.PI / 180) * num1)) * (1.414213562 / 1.8148) * num2;
+                    b = (0.5 * Math.cos((Math.PI / 180) * num1) - 0.5 * Math.sin((Math.PI / 180) * num1)) * (1.414213562 / 1.8148) * num2;
+                }
+
+                if (outputMode === 'ten_unit') {
+                    result1 = Math.floor(a / 10);
+                    result3 = Math.floor(b / 10);
+                    result2 = Math.floor(a - 10 * result1);
+                    result4 = Math.floor(b - 10 * result3);
+                    document.getElementById(result1TenId).innerText = (tabIndex === 3 ? "右十位输入次数： " : "右十位输入次数： ") + result1;
+                    document.getElementById(result2TenId).innerText = (tabIndex === 3 ? "右个位输入次数： " : "右个位输入次数： ") + result2;
+                    document.getElementById(result3TenId).innerText = (tabIndex === 3 ? "左十位输入次数： " : "左十位输入次数： ") + result3;
+                    document.getElementById(result4TenId).innerText = (tabIndex === 3 ? "左个位输入次数： " : "左个位输入次数： ") + result4;
+                    document.getElementById(result1TenId).style.display = 'block';
+                    document.getElementById(result2TenId).style.display = 'block';
+                    document.getElementById(result3TenId).style.display = 'block';
+                    document.getElementById(result4TenId).style.display = 'block';
+                    document.getElementById(result1BoxId).style.display = 'none';
+                    document.getElementById(result2BoxId).style.display = 'none';
+                    document.getElementById(result3BoxId).style.display = 'none';
+                    document.getElementById(result4BoxId).style.display = 'none';
+                } else if (outputMode === 'box_unit') {
+                    result1 = Math.floor(a / 27);
+                    result3 = Math.floor(b / 27);
+                    result2 = Math.floor(a - 27 * result1);
+                    result4 = Math.floor(b - 27 * result3);
+                    document.getElementById(result1BoxId).innerText = (tabIndex === 3 ? "右TNT盒数： " : "右盒数： ") + result1;
+                    document.getElementById(result2BoxId).innerText = (tabIndex === 3 ? "右TNT零散个数： " : "右零散个数： ") + result2;
+                    document.getElementById(result3BoxId).innerText = (tabIndex === 3 ? "左TNT盒数： " : "左盒数： ") + result3;
+                    document.getElementById(result4BoxId).innerText = (tabIndex === 3 ? "左TNT零散个数： " : "左零散个数： ") + result4;
+                     document.getElementById(result1TenId).style.display = 'none';
+                    document.getElementById(result2TenId).style.display = 'none';
+                    document.getElementById(result3TenId).style.display = 'none';
+                    document.getElementById(result4TenId).style.display = 'none';
+                    document.getElementById(result1BoxId).style.display = 'block';
+                    document.getElementById(result2BoxId).style.display = 'block';
+                    document.getElementById(result3BoxId).style.display = 'block';
+                    document.getElementById(result4BoxId).style.display = 'block';
+                }
+
+            } else {
+                document.getElementById(result1TenId).innerText = "请输入有效数字";
+                document.getElementById(result2TenId).innerText = "请输入有效数字";
+                document.getElementById(result3TenId).innerText = "请输入有效数字";
+                document.getElementById(result4TenId).innerText = "请输入有效数字";
+                document.getElementById(result1BoxId).innerText = "请输入有效数字";
+                document.getElementById(result2BoxId).innerText = "请输入有效数字";
+                document.getElementById(result3BoxId).innerText = "请输入有效数字";
+                document.getElementById(result4BoxId).innerText = "请输入有效数字";
+            }
+        }
+    </script>
+</body>
+</html>
